@@ -9,7 +9,7 @@
 // create a function to check if the user guessed the correct number
 
 const readline = require('readline');
-const secretNumber = 100
+let numAttempts = 5;
 
 const rl = readline.createInterface({
     input: process.stdin,
@@ -30,13 +30,43 @@ function checkGuess(guess, answer) {
 }
 
 function askGuess(answer) {
-    rl.question('Enter a guess: ', (guess) => {
+    if (numAttempts === 0) {
+        console.log('You lose! ... you are out of guesses. :(');
+        console.log(`The answer was ${answer}`);
+        rl.close();
+        return;
+    }
+
+    rl.question(`You have ${numAttempts} guesses left.\nEnter a guess: `, (guess) => {
         if (checkGuess(guess, answer)) {
             rl.close();
         } else {
+            numAttempts--;
             askGuess(answer);
         }
     });
 }
 
-askGuess(secretNumber);
+function randomInRange(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function askRange() {
+    rl.question('Enter a max number: ', (max) => {
+        rl.question('Enter a min number: ', (min) => {
+            if (Number(min) > Number(max)) {
+                askRange();
+            } else {
+                askGuess(randomInRange(Number(min), Number(max)));
+            }
+    });});
+}
+
+function askLimit() {
+    rl.question('Enter a number of guesses: ', (limit) => {
+        numAttempts = Number(limit);
+        askRange();
+    });
+}
+
+askLimit();
